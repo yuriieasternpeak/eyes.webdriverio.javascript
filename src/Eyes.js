@@ -8,6 +8,7 @@ const {
   FixedCutProvider,
   FixedScaleProviderFactory,
   Location,
+  MutableImage,
   NullCutProvider,
   NullScaleProvider,
   NullRegionProvider,
@@ -479,6 +480,20 @@ class Eyes extends EyesBase {
   }
 
 
+  _getMobilePixelRation() {
+    const that = this;
+    let viewportSize, screenshot;
+    return that.getViewportSize().then(vs => {
+      viewportSize = vs;
+      return that.getDriver().takeScreenshot();
+    }).then(s => {
+      screenshot = new MutableImage(s, this.getPromiseFactory());
+      return that._debugScreenshotsProvider.save(screenshot, "qweqweqwe");
+    }).then(() => {
+      return  screenshot.getWidth() / viewportSize.getWidth();
+    });
+  }
+
   /**
    * Updates the state of scaling related parameters.
    *
@@ -493,6 +508,12 @@ class Eyes extends EyesBase {
       const that = this;
       return EyesWDIOUtils.getDevicePixelRatio(that._jsExecutor).then(ratio => {
         that._devicePixelRatio = ratio;
+      }).catch(() => {
+        if (that.getRemoteWebDriver().isMobile) {
+          return that._getMobilePixelRation().then(ratio => {
+            that._devicePixelRatio = ratio;
+          });
+        }
       }).catch(err => {
         that._logger.verbose("Failed to extract device pixel ratio! Using default.", err);
         that._devicePixelRatio = Eyes.DEFAULT_DEVICE_PIXEL_RATIO;

@@ -28,10 +28,7 @@ let imageOrientationHandler = new class ImageOrientationHandlerImpl extends Imag
 
   /** @override */
   tryAutomaticRotation(logger, driver, image) {
-    return driver.execute(() => 0).then(res_ => {
-      const {value: res} = res_;
-      return res;
-    });
+    return 0;
   }
 };
 

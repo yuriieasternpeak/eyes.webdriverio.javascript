@@ -480,6 +480,10 @@ class Eyes extends EyesBase {
   }
 
 
+  /**
+   * @return {Promise<number>}
+   * @private
+   */
   _getMobilePixelRation() {
     const that = this;
     let viewportSize, screenshot;
